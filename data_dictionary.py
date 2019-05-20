@@ -25,7 +25,6 @@ def get_dictionary():
     curs.execute(q)
 
     schemas = curs.fetchall()
-
     for schema in schemas:
         schema_name = schema['schema']
 
@@ -41,12 +40,11 @@ def get_dictionary():
         curs.execute(q)
 
         tables = curs.fetchall()
-
         for table in tables:
             table_name = table['table']
 
             q = """
-            select column_name as column, data_type, is_nullable, t3.description
+            select column_name as column, data_type, character_maximum_length as size, is_nullable, column_default, t3.description as comment
             from information_schema.columns t1
             join pg_class t2 on (t1.table_name = t2.relname)
             left outer join pg_description t3 on (t2.oid = t3.objoid and t3.objsubid = t1.ordinal_position)
@@ -58,7 +56,20 @@ def get_dictionary():
             curs.execute(q)
 
             table['columns'] = curs.fetchall()
+		
+	    c = """SELECT conrelid::regclass AS table_from
+      ,conname
+      ,pg_get_constraintdef(c.oid) as def
+FROM   pg_constraint c
+JOIN   pg_namespace n ON n.oid = c.connamespace
+WHERE  contype IN ('f', 'p ') AND  conrelid = '{table_name}'::regclass::oid
+AND    n.nspname = 'public'
+ORDER  BY conrelid::regclass::text, contype DESC;
+""".format(**vars())
 
+	    curs.execute(c)
+
+            table['constraints'] = curs.fetchall()
         schema['tables'] = tables
 
     return schemas

@@ -27,7 +27,6 @@ env = jinja2.Environment(loader=jinja2.FileSystemLoader('.'))
 def generate_report(tmpl_vars, args):
     name = os.path.splitext(sys.argv[0])[0]
     tmpl = env.get_template(name + '.tmpl')
-
     html_out = tmpl.render(tmpl_vars)
 
     out_file = name + ".html" if args.output is None else args.output

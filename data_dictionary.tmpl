@@ -1,28 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
 <html>
-<head lang="en">
-    <meta charset="UTF-8">
+  <head>
     <title>{{title}}</title>
-    <link rel="stylesheet" type="text/css" href="report.css">
-</head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+      body {  font-family: verdana, helvetica, sans-serif; margin: 0px; padding: 0; }
+      h2 { font-size: 130%; padding-bottom: 0.5ex; color: #009ACE; border-bottom-style: solid; border-bottom-width: 2px; }
+      h3 { font-size: 110%; padding-bottom: 0.5ex; color: #000000; }
+      th { text-align: left; background-color: #009ACE; color: #eeeeee; }
+      #ReportHeader { padding: 10px; background-color: #009ACE; color: #eeeeee; border-bottom-style: solid; border-bottom-width: 2px; border-color: #999999; }
+      #ReportHeader th { width: 25%; white-space: nowrap; vertical-align: top; }
+      #ReportHeader td { vertical-align: top; color: #eeeeee; }
+      #ReportNotes { padding: 10px; background-color: #eeeeee; font-size: 80%; border-bottom-style: solid; border-bottom-width: 2px; border-color: #999999; }
+      .ReportSQL { margin-bottom: 10px; padding: 10px; display: block; background-color: #eeeeee; font-family: monospace; }
+      #ReportDetails { margin-left: 10px; margin-right: 10px; margin-bottom: 10px; }
+      #ReportDetails td, th { font-size: 80%; margin-left: 2px; margin-right: 2px; }
+      #ReportDetails th { border-bottom-color: #777777; border-bottom-style: solid; border-bottom-width: 2px; }
+      .ReportDetailsOddDataRow { background-color: #dddddd; }
+      .ReportDetailsEvenDataRow { background-color: #eeeeee; }
+      .ReportTableHeaderCell { background-color: #dddddd; color: #009ACE; vertical-align: top; font-size: 80%; white-space: nowrap; }
+      .ReportTableValueCell { vertical-align: top; font-size: 80%; white-space: nowrap; }
+      .ReportTableInfo { font-size: 80%; font-style: italic; }
+      #ReportFooter { font-weight: bold; font-size: 80%; text-align: right; background-color: #009ACE; color: #eeeeee; margin-top: 10px; padding: 2px; border-bottom-style: solid; border-bottom-width: 2px; border-top-style: solid; border-top-width: 2px; border-color: #999999; }
+      #ReportFooter a { color: #ffffff; text-decoration: none; }
+    </style>
+  </head>
 <body>
-  <div class="content">
-  <h1>{{title}}</h1>
-  {% for schema in dictionary %}
-    <h2>{{schema['schema']}} schema</h2>
-    <h4>{{schema['description']}}</h4>
-  
-    {% for table in schema['tables'] %}
-      <table class="min"><th>{{table['table']}}:</th><td>{{table['description']}}</table>
-      <table class="wide">
-        <tr><th>Attribute</th><th>Type</th><th>Nullable</th><th>Description</th></tr>
-        {% for column in table['columns'] %}
-          <tr><td>{{column['column']}}</td><td>{{column['data_type']}}</td><td>{{column['is_nullable']}}</td><td>{{column['description']}}</td></tr>
-        {% endfor %}
-      </table>
-      <br />
-    {% endfor %}
-  {% endfor %}
-  </div>
+   <h1 align="center">{{title}}</h1>
+        {% for schema in dictionary %}
+        {% for table in schema['tables'] %}
+	<div id="ReportHeader"><h1 align="center">Table Data dictionary report - {{table['table']}}</h1></div>
+        <h2>Columns</h2>
+	    <div style="overflow:auto;">
+		<table width="100%">
+		    <tr class="ReportTableHeaderCell">
+			<th class="ReportTableHeaderCell">Name</th>
+			<th class="ReportTableHeaderCell">Data type</th>
+			<th class="ReportTableHeaderCell">Not Null?</th>
+			<th class="ReportTableHeaderCell">Default</th>
+			<th class="ReportTableHeaderCell">Comment</th></tr>
+			{% for column in table['columns'] %}
+			    <tr class="ReportDetailsEvenDataRow">
+				<td class="ReportTableValueCell">{{column['column']}}</td>
+				<td class="ReportTableValueCell">{{column['data_type']}}</td>
+				<td class="ReportTableValueCell">{{column['is_nullable']}}</td>
+				<td class="ReportTableValueCell">{{column['column_default']}}</td>
+				<td class="ReportTableValueCell">{%if column['comment'] %} {{column['comment'].decode('utf-8')}} {%endif%}</td>
+		            </tr>
+			{% endfor %}
+                </table>
+	    </div>
+	<h2>Constraints</h2>
+	    <div style="overflow:auto;">
+		<table width="100%">
+		    <tr class="ReportTableHeaderCell">
+			<th class="ReportTableHeaderCell">Name</th>
+			<th class="ReportTableHeaderCell">Type</th>
+			<th class="ReportTableHeaderCell">Definition</th></tr>
+		    {% for constraint in table['constraints'] %}
+			<tr class="ReportDetailsEvenDataRow">
+			    <td class="ReportTableValueCell">{{constraint['conname']}}</td>
+			    <td class="ReportTableValueCell">{{constraint['def']}}</td>
+			    <td class="ReportTableValueCell">{{constraint['conname']}}</td>
+			</tr>
+		    {% endfor %}
+		</table>
+	    </div>
+	<br/>
+	{% endfor %}
+	{% endfor %}
 </body>
 </html>
